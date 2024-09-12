@@ -14,6 +14,11 @@ test_props_a = {
     "target": "_blank",
 }
 
+test_img_props = {
+    "url" : "https://www.Spawt.com/Images/Spawt.png",
+    "alt" : "SPAWT THE CAT! MROWR!"
+}
+
 class TestLeafNode(unittest.TestCase):
     def test_eq(self):
         node = LeafNode("p", "This is a paragraph.")
@@ -41,6 +46,10 @@ class TestLeafNode(unittest.TestCase):
     def test_returns_properly_paragraph(self):
         node = LeafNode("p", "This is a short paragraph...")
         self.assertEqual(node.to_html(), '<p>This is a short paragraph...</p>')
+
+    def test_returns_properly_image(self):
+        node = LeafNode("img", "", test_img_props)
+        self.assertEqual(node.to_html(), '<img url="https://www.Spawt.com/Images/Spawt.png" alt="SPAWT THE CAT! MROWR!">')
 
 if __name__ == "__main__":
     unittest.main()
