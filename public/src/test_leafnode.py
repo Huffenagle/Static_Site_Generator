@@ -1,6 +1,8 @@
 import unittest
 
-from htmlnode import *
+from htmlnode import (
+    LeafNode,
+)
 
 #HTML NODE ARGS: (self, tag=None, value=None, children=None, props=None):
 
