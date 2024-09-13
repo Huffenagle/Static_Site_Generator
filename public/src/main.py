@@ -19,6 +19,8 @@ from inline_markdown import (
     split_nodes_at_delimiter,
     extract_markdown_images,
     extract_markdown_links,
+    split_nodes_image,
+    split_nodes_links
 )
 
 text_node_text = TextNode("The coolest thing ever.", text_type_text)
@@ -41,16 +43,21 @@ def main():
     print(test_node.to_html())
     '''
 
-    mixed_node = TextNode("`This` is `code` with a `code block` word and *another* `code block` word...", text_type_text)
-    code_node = TextNode("This is a `code` block text node...", text_type_text)
-    split_node = split_nodes_at_delimiter([code_node], "`", text_type_code)
+    text_with_image = "![Image 1](https://i.imgur.com/img1.gif)![Image 2](https://i.imgur.com/img2.gif) text between images ![Image 3](https://i.imgur.com/img3.gif) more text between images ![Image 4](https://i.imgur.com/img4.gif) text after images.![Image 5](https://i.imgur.com/img5.gif)"
+    text_with_image2 = "![Image 1](https://i.imgur.com/img1.gif)"
+    text_with_image3 = "![Image 2](https://i.imgur.com/img2.gif)![Image 3](https://i.imgur.com/img3.gif)"
+    node_with_image = TextNode(text_with_image, text_type_text)
+    node_with_image2 = TextNode(text_with_image2, text_type_text)
+    node_with_image3 = TextNode(text_with_image3, text_type_text)
+    new_nodes = split_nodes_image([text_node_text, node_with_image, text_node_link, node_with_image2, node_with_image3])
+    for node in new_nodes:
+        print(node)
 
-    text_with_image = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)."
-    text_without_image = "This is a text with no image markdown syntax."
-    print(extract_markdown_images(text_with_image))
-    print(extract_markdown_images(text_without_image))
+    test_node = TextNode("![Image 1](https://www.test.com/img1.png) with text between ![Image 2](https://www.test.com/img2.png)", text_type_text)
+    test_node_list = split_nodes_image([test_node])
+    print(test_node_list)
 
-    text_with_link = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
-    print(extract_markdown_links(text_with_link))
+    #text_with_link = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+    #print(extract_markdown_links(text_with_link))
 
 main()
