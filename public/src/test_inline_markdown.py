@@ -14,8 +14,9 @@ from inline_markdown import (
     split_nodes_at_delimiter,
     extract_markdown_images,
     extract_markdown_links,
-    split_nodes_image,
+    split_nodes_images,
     split_nodes_links,
+    text_to_textnodes
 )
 
 class TestSplitNode(unittest.TestCase):
@@ -182,14 +183,14 @@ class TestSplitNodesImage(unittest.TestCase):
     def test_single_node_single_image(self):
         test_node = TextNode("![Alt Text goes here...](https://www.test.com/img.png)", text_type_text)
         proof_node = TextNode("Alt Text goes here...", text_type_image, "https://www.test.com/img.png")
-        self.assertListEqual(split_nodes_image([test_node]), [proof_node])
+        self.assertListEqual(split_nodes_images([test_node]), [proof_node])
 
     def test_single_node_double_image(self):
         test_node = TextNode("![Image 1](https://www.test.com/img1.png)![Image 2](https://www.test.com/img2.png)", text_type_text)
         proof_node1 = TextNode("Image 1", text_type_image, "https://www.test.com/img1.png")
         proof_node2 = TextNode("Image 2", text_type_image, "https://www.test.com/img2.png")
         proof_node_list = [proof_node1, proof_node2]
-        self.assertListEqual(split_nodes_image([test_node]), proof_node_list)
+        self.assertListEqual(split_nodes_images([test_node]), proof_node_list)
 
     def test_single_node_double_image(self):
         test_node = TextNode("![Image 1](https://www.test.com/img1.png) with text between ![Image 2](https://www.test.com/img2.png)", text_type_text)
@@ -197,7 +198,7 @@ class TestSplitNodesImage(unittest.TestCase):
         proof_node2 = TextNode(" with text between ", text_type_text)
         proof_node3 = TextNode("Image 2", text_type_image, "https://www.test.com/img2.png")
         proof_node_list = [proof_node1, proof_node2, proof_node3]
-        self.assertListEqual(split_nodes_image([test_node]), proof_node_list)
+        self.assertListEqual(split_nodes_images([test_node]), proof_node_list)
 
     def test_double_node_single_image(self):
         test_node_1 = TextNode("![Image 1](https://www.test.com/img1.png) with text after Image 1.", text_type_text)
@@ -207,7 +208,7 @@ class TestSplitNodesImage(unittest.TestCase):
         proof_node3 = TextNode("Image 2", text_type_image, "https://www.test.com/img2.png")
         proof_node4 = TextNode(" with text after Image 2.", text_type_text)
         test_node_list = [test_node_1, test_node_2]
-        test_split_nodes = split_nodes_image(test_node_list)
+        test_split_nodes = split_nodes_images(test_node_list)
         proof_node_list = [proof_node1, proof_node2, proof_node3, proof_node4]
         self.assertListEqual(test_split_nodes, proof_node_list)
     
@@ -225,7 +226,7 @@ class TestSplitNodesImage(unittest.TestCase):
             TextNode(" with text after Image 4.", text_type_text)
             ]
         test_node_list = [test_node_1, test_node_2]
-        test_split_nodes = split_nodes_image(test_node_list)
+        test_split_nodes = split_nodes_images(test_node_list)
         self.assertListEqual(test_split_nodes, proof_node_list)
 
     def test_image_with_link(self):
@@ -234,18 +235,18 @@ class TestSplitNodesImage(unittest.TestCase):
             TextNode("Image 1", text_type_image, "https://www.test.com/img1.png"),
             TextNode(" with a [link](https://www.bunk.com) after Image 1.", text_type_text),
             ]
-        test_split_nodes = split_nodes_image([test_node])
+        test_split_nodes = split_nodes_images([test_node])
         self.assertListEqual(test_split_nodes, proof_node_list)
 
     def test_passes_text_node(self):
         test_node = TextNode("This is just a text block.", text_type_text)
         proof_node_list = [TextNode("This is just a text block.", text_type_text)]
-        test_split_nodes = split_nodes_image([test_node])
+        test_split_nodes = split_nodes_images([test_node])
         self.assertListEqual(test_split_nodes, proof_node_list)
 
     def test_passes_link_node(self):
         test_node = TextNode("This is only a [link](https://www.bunk.com) block.", text_type_text)
-        test_split_nodes = split_nodes_image([test_node])
+        test_split_nodes = split_nodes_images([test_node])
         self.assertListEqual(test_split_nodes, [test_node])
 
     def test_passes_other_nodes(self):
@@ -254,8 +255,207 @@ class TestSplitNodesImage(unittest.TestCase):
             TextNode("This is an *italic* node.", text_type_italic),
             TextNode("This is a `code` node.", text_type_code),
             ]   
-        test_split_nodes = split_nodes_image(test_node_list)
+        test_split_nodes = split_nodes_images(test_node_list)
         self.assertListEqual(test_split_nodes, test_node_list)
+
+class TestSplitNodesLinks(unittest.TestCase):
+
+    def test_single_node_single_link(self):
+        test_node = TextNode("[Click Me!](https://www.test.com)", text_type_text)
+        proof_node = TextNode("Click Me!", text_type_link, "https://www.test.com")
+        self.assertListEqual(split_nodes_links([test_node]), [proof_node])
+
+    def test_single_node_double_link(self):
+        test_node = TextNode("[Click Me!](https://www.test.com), or [Click Me!!](https://www.test.com/test.html)", text_type_text)
+        proof_node_list = [
+            TextNode("Click Me!", text_type_link, "https://www.test.com"),
+            TextNode(", or ", text_type_text),
+            TextNode("Click Me!!", text_type_link, "https://www.test.com/test.html")
+            ]
+        self.assertListEqual(split_nodes_links([test_node]), proof_node_list)
+    
+    def test_double_node_double_link(self):
+        test_node_list = [
+            TextNode("You should [Click Me!](https://www.test.com), or [Click Me!!](https://www.test.com/test.html).", text_type_text),
+            TextNode("[Don't Click Me...](https://www.bunk.com), or [Woo!](https://www.dotcom.com)!", text_type_text)
+            ]
+        proof_node_list = [
+            TextNode("You should ", text_type_text),
+            TextNode("Click Me!", text_type_link, "https://www.test.com"),
+            TextNode(", or ", text_type_text),
+            TextNode("Click Me!!", text_type_link, "https://www.test.com/test.html"),
+            TextNode(".", text_type_text),
+            TextNode("Don't Click Me...", text_type_link, "https://www.bunk.com"),
+            TextNode(", or ", text_type_text),
+            TextNode("Woo!", text_type_link, "https://www.dotcom.com"),
+            TextNode("!", text_type_text),
+            ]
+        self.assertListEqual(split_nodes_links(test_node_list), proof_node_list)
+
+    def test_passes_other_nodes(self):
+        test_node_list = [
+            TextNode("This is an ![Image](https://www.bunk.net/image.png) text node.", text_type_text),
+            TextNode("Image Node", text_type_image, "https://www.test.com/img2.png"),
+            TextNode("Link Node Alt Text", text_type_link, "https://www.Link.org"),
+            TextNode("This is a **bold** node.", text_type_bold),
+            TextNode("This is an *italic* node.", text_type_italic),
+            TextNode("This is a `code` node.", text_type_code),
+            ]   
+        test_split_nodes = split_nodes_links(test_node_list)
+        self.assertListEqual(test_split_nodes, test_node_list)
+
+class TestPlainTextToTextNodes(unittest.TestCase):
+
+    def test_error_cases(self):
+        text = "This is not *bold** text."
+        with self.assertRaises(ValueError):
+            text_to_textnodes(text)
+        
+        text = "This is not *italic` text."
+        with self.assertRaises(ValueError):
+            text_to_textnodes(text)
+
+    def test_text(self):
+        text = "This is plain text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [TextNode("This is plain text.", text_type_text)]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_bold(self):
+        text = "This is **bold** text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("bold", text_type_bold),
+            TextNode(" text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_bunch_of_bold(self):
+        text = "This is **bold** and **bold** and **bold** text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("bold", text_type_bold),
+            TextNode(" and ", text_type_text),
+            TextNode("bold", text_type_bold),
+            TextNode(" and ", text_type_text),
+            TextNode("bold", text_type_bold),
+            TextNode(" text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_italic(self):
+        text = "This is *italic* text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("italic", text_type_italic),
+            TextNode(" text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_bunch_of_italic(self):
+        text = "This is *italic* and *italic* and *italic* text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("italic", text_type_italic),
+            TextNode(" and ", text_type_text),
+            TextNode("italic", text_type_italic),
+            TextNode(" and ", text_type_text),
+            TextNode("italic", text_type_italic),
+            TextNode(" text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_code(self):
+        text = "This is `code` text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("code", text_type_code),
+            TextNode(" text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_bunch_of_code(self):
+        text = "This is `code` and `code` and `code` text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("code", text_type_code),
+            TextNode(" and ", text_type_text),
+            TextNode("code", text_type_code),
+            TextNode(" and ", text_type_text),
+            TextNode("code", text_type_code),
+            TextNode(" text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_three_delims(self):
+        text = "This is **bold** and *italic* and `code` text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("bold", text_type_bold),
+            TextNode(" and ", text_type_text),
+            TextNode("italic", text_type_italic),
+            TextNode(" and ", text_type_text),
+            TextNode("code", text_type_code),
+            TextNode(" text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_image(self):
+        text = "This is ![image](https://www.test.net/img.png) text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("image", text_type_image, "https://www.test.net/img.png"),
+            TextNode(" text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_link(self):
+        text = "This is [a Link!](https://www.test.net) with text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("a Link!", text_type_link, "https://www.test.net"),
+            TextNode(" with text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+    
+    def test_image_link(self):
+        text = "This is ![image](https://www.test.net/img.png) text.  This is [a Link!](https://www.test.net) with text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("This is ", text_type_text),
+            TextNode("image", text_type_image, "https://www.test.net/img.png"),
+            TextNode(" text.  This is ", text_type_text),
+            TextNode("a Link!", text_type_link, "https://www.test.net"),
+            TextNode(" with text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
+
+    def test_complex(self):
+        text = "Text ![image](https://www.test.net/img.png) text **bold** text *italic* text `code` text [a Link!](https://www.test.net) text."
+        test_nodes = text_to_textnodes(text)
+        proof_nodes = [
+            TextNode("Text ", text_type_text),
+            TextNode("image", text_type_image, "https://www.test.net/img.png"),
+            TextNode(" text ", text_type_text),
+            TextNode("bold", text_type_bold),
+            TextNode(" text ", text_type_text),
+            TextNode("italic", text_type_italic),
+            TextNode(" text ", text_type_text),
+            TextNode("code", text_type_code),
+            TextNode(" text ", text_type_text),
+            TextNode("a Link!", text_type_link, "https://www.test.net"),
+            TextNode(" text.", text_type_text),
+            ]
+        self.assertListEqual(test_nodes, proof_nodes)
 
 if __name__ == "__main__":
     unittest.main()
