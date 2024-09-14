@@ -24,13 +24,25 @@ from inline_markdown import (
     text_to_textnodes
 )
 
-def main():
+from blockline_markdown import (
+    markdown_to_blocks,
+)
 
-    #new_nodes = text_to_textnodes("This ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) is **text** with an *italic* word *and* a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev).")
-    #new_nodes = text_to_textnodes("Basic and simple text.")
-    new_nodes = text_to_textnodes("Basic and **bold** text.")
-    new_nodes = text_to_textnodes("Basic and *italic* text.")
-    for node in new_nodes:
-        print(node)
+def main():
+    test_markdown = (
+        f"#This is a heading.\n\n"
+        f"##This is also a heading.\n\n"
+        f"###This is an even better heading.\n\n"
+        f"This is a paragraph of text. It has some `code words` in it.\n\n"
+        f"This is another paragraph of text. It has some **bold** and *italic* words in it.\n It even has a dropped line to make sure it appends correctly.\n\n"
+        f"*This is the first list item in a list block.\n"
+        f"*This is a list item.\n"
+        f"*Another list item.\n\n"
+        f"1. This is the first list item in an ordered list block.\n"
+        f"2. This is the second item.\n"
+        f"3. Item #3."
+        )    
+    markdown_blocks = markdown_to_blocks(test_markdown)
+    print(markdown_blocks, len(markdown_blocks))
 
 main()

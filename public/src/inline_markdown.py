@@ -97,7 +97,7 @@ def text_to_textnodes(text):
     nodes = [TextNode(text, text_type_text)]
     delim_dict = {"**":text_type_bold, "*":text_type_italic, "`":text_type_code}
     for delim in delim_dict:
-        new_nodes = split_nodes_at_delimiter(new_nodes, delim, delim_dict[delim])
-    new_nodes = split_nodes_images(split_nodes_links(new_nodes))
+        nodes = split_nodes_at_delimiter(nodes, delim, delim_dict[delim])
+    nodes = split_nodes_images(split_nodes_links(nodes))
 
     return nodes
