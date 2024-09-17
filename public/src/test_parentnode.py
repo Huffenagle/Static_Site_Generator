@@ -17,12 +17,9 @@ test_props_a = {
     "target": "_blank",
 }
 
-
 test_child_a = ParentNode("A", None, test_props_a)
 test_child_b = ParentNode("P", test_child_a, test_props_p)
 test_children = (test_child_a, test_child_b)
-
-
 
 class TestParentNode(unittest.TestCase):
     def test_eq(self):

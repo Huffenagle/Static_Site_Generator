@@ -1,4 +1,5 @@
 import re
+
 from textnode import (
     TextNode,
     text_type_text,
@@ -99,5 +100,4 @@ def text_to_textnodes(text):
     for delim in delim_dict:
         nodes = split_nodes_at_delimiter(nodes, delim, delim_dict[delim])
     nodes = split_nodes_images(split_nodes_links(nodes))
-
     return nodes
