@@ -1,42 +1,25 @@
 import os
+import shutil
 
-from textnode import (
-    TextNode,
-    text_node_to_html_node,
-    text_type_text,
-    text_type_bold,
-    text_type_italic,
-    text_type_code,
-    text_type_image,
-    text_type_link,
-)
+from gencontent import generate_page
+from copystatic import copy_files_recursive
 
-from htmlnode import (
-    HTMLNode,
-    LeafNode,
-    ParentNode,
-)
+dir_path_static = "./static"
+dir_path_public = "./public"
+dir_path_content = "./content"
+dir_path_template = "./template.html"
 
-from inline_markdown import (
-    split_nodes_at_delimiter,
-    extract_markdown_images,
-    extract_markdown_links,
-    split_nodes_images,
-    split_nodes_links,
-    text_to_textnodes
-)
+def main():    
+    print("Deleting public directory...")
+    if os.path.exists(dir_path_public):
+        shutil.rmtree(dir_path_public)
+    
+    print("Copying static files to public directory...")
+    copy_files_recursive(dir_path_static, dir_path_public)
 
-from blockline_markdown import (
-    markdown_to_blocks,
-    block_to_block_type,
-    markdown_to_html_node,
-)
+    from_path = "./content/index.md"
+    template_path = "./template.html"
+    dest_path = "./public/index.html"
+    generate_page(from_path, template_path, dest_path)
 
-def main():
-    copy_static_to_public()
-    return
-
-def copy_static_to_public():
-    ospath = os.listdir(path='./public')
-    print(ospath)
 main()

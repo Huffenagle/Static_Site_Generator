@@ -28,8 +28,6 @@ block_type_quote = "quote"
 block_type_olist = "ordered_list"
 block_type_ulist = "unordered_list"
 
-
-
 def markdown_to_blocks(markdown):
     split_list = markdown.strip().split("\n\n")
     blocks = []
@@ -60,9 +58,9 @@ def block_to_block_type(block):
         return block_type_heading
     if len(lines) > 1 and lines[0].startswith("```") and lines[-1].startswith("```"):
         return block_type_code
-    if block.startswith(">"):
+    if block.startswith("> "):
         for line in lines:
-            if not line.startswith(">"):
+            if not line.startswith("> "):
                 return block_type_paragraph
         return block_type_quote
     if block.startswith("* "):
@@ -139,7 +137,7 @@ def heading_block_to_html_node(block):
 
 def quote_block_to_html_node(block):
     block_tag = "blockquote"
-    block_text = block.replace(">", "")
+    block_text = block.replace("> ", "")
     children = text_to_children(block_text)
     html_node = ParentNode(block_tag, children)
     return html_node

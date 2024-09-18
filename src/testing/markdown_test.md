@@ -12,7 +12,7 @@
 
 This is just a paragraph of text.
 
->I came. I saw. I got the **T-shirt**. I got *bored*. I went home.
+> I came. I saw. I got the **T-shirt**. I got *bored*. I went home.
 
 ```
 This is a bit of code.  
