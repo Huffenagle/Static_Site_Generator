@@ -1,3 +1,5 @@
+import os
+
 from textnode import (
     TextNode,
     text_node_to_html_node,
@@ -30,12 +32,11 @@ from blockline_markdown import (
     markdown_to_html_node,
 )
 
-with open('src/markdown_test.md') as doc_markdown:
-    test_markdown = doc_markdown.read()
-    doc_markdown.close()
-
 def main():
-    #print(markdown_to_html_node(test_markdown).to_html())
+    copy_static_to_public()
     return
 
+def copy_static_to_public():
+    ospath = os.listdir(path='./public')
+    print(ospath)
 main()
